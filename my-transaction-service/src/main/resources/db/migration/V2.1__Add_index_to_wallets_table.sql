@@ -1,0 +1,1 @@
+create index fki_wallets_merchant_uid_fkey on transaction.wallets (merchant_uid);

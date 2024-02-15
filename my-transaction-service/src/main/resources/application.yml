@@ -1,0 +1,14 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  r2dbc:
+    url: ${R2DBC_URL}
+    username: ${R2DBC_USER}
+    password: ${R2DBC_PASSWORD}
+  flyway:
+    url: ${DB_URL}
+    locations: classpath:db/migration
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+

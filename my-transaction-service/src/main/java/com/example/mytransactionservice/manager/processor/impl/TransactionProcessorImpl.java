@@ -8,6 +8,7 @@ import com.example.mytransactionservice.repository.TransactionRepository;
 import com.example.mytransactionservice.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -35,6 +36,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     };
 
     @Override
+    @Transactional
     public Mono<Transaction> process(Transaction transaction) {
         return walletRepository.findWalletByMerchantIdAndCurrency(transaction.getMerchantId(), transaction.getCurrency())
                 .defaultIfEmpty(Wallet.builder()

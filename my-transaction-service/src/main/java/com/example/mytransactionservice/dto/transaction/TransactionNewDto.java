@@ -3,6 +3,7 @@ package com.example.mytransactionservice.dto.transaction;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -32,11 +33,12 @@ public class TransactionNewDto {
     private BigDecimal amount;
     @NotNull
     private String currency;
-    @NotNull
+    @NotNull @Valid
     private CardDataDto cardData;
     @NotNull
     private String language;
     @NotNull
     private String notificationUrl;
+    @NotNull @Valid
     private CustomerDto customer;
 }

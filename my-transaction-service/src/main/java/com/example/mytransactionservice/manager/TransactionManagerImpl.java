@@ -2,6 +2,7 @@ package com.example.mytransactionservice.manager;
 
 import com.example.mytransactionservice.entity.transaction.TransactionStatus;
 import com.example.mytransactionservice.entity.transaction.TransactionType;
+import com.example.mytransactionservice.manager.processor.PayoutProcessor;
 import com.example.mytransactionservice.manager.processor.TransactionProcessor;
 import com.example.mytransactionservice.manager.publisher.WebhookPublisher;
 import com.example.mytransactionservice.repository.TransactionRepository;
@@ -17,6 +18,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final TransactionRepository transactionRepository;
     private final TransactionProcessor transactionProcessor;
+    private final PayoutProcessor payoutProcessor;
     private final WebhookPublisher webhookPublisher;
 
     @Override
@@ -44,7 +46,7 @@ public class TransactionManagerImpl implements TransactionManager {
         transactionRepository.findAllByTransactionTypeAndTransactionStatus(TransactionType.PAYOUT, TransactionStatus.IN_PROGRESS)
                 .flatMap(payout -> {
                     log.info("Processing payout: {}", payout.getId());
-                    return transactionProcessor.process(payout)
+                    return payoutProcessor.process(payout)
                             .doOnSuccess(processedPayout -> {
                                 log.info("Payout {} is processed successfully", processedPayout.getId());
                             });

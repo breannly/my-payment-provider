@@ -33,6 +33,7 @@ public class PayoutProcessorImpl implements PayoutProcessor {
     };
 
     @Override
+    @Transactional
     public Mono<Transaction> process(Transaction payout) {
         return walletRepository.findWalletByMerchantIdAndCurrency(payout.getMerchantId(), payout.getCurrency())
                 .flatMap(wallet -> processPayout(payout, wallet))

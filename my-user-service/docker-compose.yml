@@ -3,12 +3,12 @@ version: "3.9"
 services:
   postgres:
     image: postgres:latest
-    container_name: transaction_db
+    container_name: person_db
     restart: always
     ports:
-      - "5433:5432"
+      - "5434:5432"
     environment:
-      POSTGRES_DB: "transaction"
+      POSTGRES_DB: "person"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
 
@@ -16,16 +16,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: my_transaction_service
+    container_name: my_users_service
     restart: always
     ports:
-      - "8081:8080"
+      - "8082:8080"
     depends_on:
       - postgres
     environment:
-      - R2DBC_URL=r2dbc:postgresql://host.docker.internal:5433/transaction
+      - R2DBC_URL=r2dbc:postgresql://host.docker.internal:5434/person
       - R2DBC_USER=postgres
       - R2DBC_PASSWORD=postgres
-      - DB_URL=jdbc:postgresql://host.docker.internal:5433/transaction
+      - DB_URL=jdbc:postgresql://host.docker.internal:5434/person
       - DB_USER=postgres
       - DB_PASSWORD=postgres

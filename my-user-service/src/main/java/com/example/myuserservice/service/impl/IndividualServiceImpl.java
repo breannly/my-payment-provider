@@ -1,14 +1,14 @@
 package com.example.myuserservice.service.impl;
 
+import com.example.myuserservice.dto.IndividualDetailsDto;
 import com.example.myuserservice.dto.IndividualDto;
 import com.example.myuserservice.dto.IndividualNewDto;
 import com.example.myuserservice.entity.Individual;
 import com.example.myuserservice.entity.user.User;
-import com.example.myuserservice.entity.history.ProfileHistory;
+import com.example.myuserservice.entity.ProfileHistory;
 import com.example.myuserservice.entity.profile.Profile;
 import com.example.myuserservice.entity.profile.ProfileType;
 import com.example.myuserservice.entity.user.UserStatus;
-import com.example.myuserservice.mapper.ChangedValuesMapper;
 import com.example.myuserservice.mapper.IndividualMapper;
 import com.example.myuserservice.mapper.ProfileMapper;
 import com.example.myuserservice.mapper.UserMapper;
@@ -17,18 +17,23 @@ import com.example.myuserservice.repository.ProfileHistoryRepository;
 import com.example.myuserservice.repository.ProfileRepository;
 import com.example.myuserservice.repository.UserRepository;
 import com.example.myuserservice.service.IndividualService;
+import com.example.myuserservice.utils.JsonUtils;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class IndividualServiceImpl implements IndividualService {
+
+    private static final Profile EMPTY_PROFILE = new Profile();
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
@@ -37,21 +42,21 @@ public class IndividualServiceImpl implements IndividualService {
     private final ProfileMapper profileMapper;
     private final UserMapper userMapper;
     private final IndividualMapper individualMapper;
-    private final ChangedValuesMapper changedValueMapper;
+    private final TransactionalOperator transactionalOperator;
 
     @Override
-    @Transactional
     public Mono<IndividualDto> register(IndividualNewDto individualNewDto) {
-        return createProfile(individualNewDto)
-                .flatMap(savedProfile -> createUser(individualNewDto, savedProfile))
-                .flatMap(savedUser -> createIndividual(individualNewDto, savedUser))
-                .flatMap(savedIndividual -> createProfileHistory(individualNewDto, savedIndividual))
-                .map(individualMapper::map);
+        return transactionalOperator.transactional(
+                createProfile(individualNewDto)
+                        .flatMap(savedProfile -> createUser(individualNewDto, savedProfile))
+                        .flatMap(this::createProfileHistory)
+                        .flatMap(savedUser -> createIndividual(individualNewDto, savedUser))
+                        .map(individualMapper::mapIndividualDto)
+        );
     }
 
     private Mono<Profile> createProfile(IndividualNewDto individualNewDto) {
-        Profile profile = profileMapper.map(individualNewDto)
-                .toBuilder()
+        Profile profile = profileMapper.map(individualNewDto).toBuilder()
                 .profileType(ProfileType.INDIVIDUAL)
                 .isPasswordSet(Objects.nonNull(individualNewDto.getPassword()))
                 .build();
@@ -62,10 +67,10 @@ public class IndividualServiceImpl implements IndividualService {
                 .doOnError(throwable -> log.error("Failed to create profile for individual: {}", throwable.getMessage()));
     }
 
-    private Mono<User> createUser(IndividualNewDto individualNewDto, Profile savedProfile) {
+    private Mono<User> createUser(IndividualNewDto individualNewDto, Profile profile) {
         User user = userMapper.map(individualNewDto).toBuilder()
-                .profileId(savedProfile.getId())
-                .profile(savedProfile)
+                .profileId(profile.getId())
+                .profile(profile)
                 .status(UserStatus.IS_PENDING)
                 .filled(individualNewDto.getEmail() != null || individualNewDto.getPhoneNumber() != null)
                 .build();
@@ -76,10 +81,10 @@ public class IndividualServiceImpl implements IndividualService {
                 .doOnError(throwable -> log.error("Failed to create user for individual: {}", throwable.getMessage()));
     }
 
-    private Mono<Individual> createIndividual(IndividualNewDto individualNewDto, User savedUser) {
+    private Mono<Individual> createIndividual(IndividualNewDto individualNewDto, User user) {
         Individual individual = individualMapper.map(individualNewDto).toBuilder()
-                .userId(savedUser.getId())
-                .user(savedUser)
+                .userId(user.getId())
+                .user(user)
                 .build();
 
         log.info("Creating individual for individual: {}", individual);
@@ -88,14 +93,50 @@ public class IndividualServiceImpl implements IndividualService {
                 .doOnError(throwable -> log.error("Failed to create individual for individual: {}", throwable.getMessage()));
     }
 
-    private Mono<Individual> createProfileHistory(IndividualNewDto individualNewDto, Individual savedIndividual) {
+    private Mono<User> createProfileHistory(User user) {
         ProfileHistory profileHistory = ProfileHistory.builder()
-                .profileId(savedIndividual.getUser().getProfileId())
-                .userId(savedIndividual.getUserId())
-                .createdAt(savedIndividual.getUser().getCreatedAt())
-                .changedValues(changedValueMapper.map(individualNewDto))
+                .profileId(user.getProfileId())
+                .userId(user.getId())
+                .createdAt(user.getCreatedAt())
+                .changedValues(Json.of(JsonUtils.diff(EMPTY_PROFILE, user.getProfile())))
                 .build();
+
+        log.info("Saving profile history: {}", profileHistory);
         return profileHistoryRepository.save(profileHistory)
-                .thenReturn(savedIndividual);
+                .doOnSuccess(savedProfileHistory -> log.info("Profile history saved successfully: {}", savedProfileHistory))
+                .doOnError(throwable -> log.error("Failed to save profile history: {}", throwable.getMessage()))
+                .thenReturn(user);
+    }
+
+    @Override
+    public Mono<IndividualDetailsDto> findById(UUID individualId) {
+        return profileRepository.findById(individualId)
+                .flatMap(this::findUserByProfile)
+                .flatMap(this::findIndividualByUser)
+                .map(individualMapper::mapIndividualDetailsDto);
+    }
+
+    private Mono<User> findUserByProfile(Profile profile) {
+        log.info("Finding user by profile id: {}", profile.getId());
+        return userRepository.findByProfileId(profile.getId())
+                .doOnSuccess(foundUser ->
+                        log.info("User found successfully {} by profile id: {}", foundUser, profile.getId()))
+                .doOnError(throwable ->
+                        log.error("Failed to find user by profile id: {} {}", throwable.getMessage(), profile.getId()))
+                .map(foundUser -> foundUser.toBuilder()
+                        .profile(profile)
+                        .build());
+    }
+
+    private Mono<Individual> findIndividualByUser(User user) {
+        log.info("Finding individual by user id: {}", user.getId());
+        return individualRepository.findByUserId(user.getId())
+                .doOnSuccess(foundIndividual ->
+                        log.info("Individual found successfully {} by user id: {}", foundIndividual, user.getId()))
+                .doOnError(throwable ->
+                        log.error("Failed to find individual by user id: {} {}", throwable.getMessage(), user.getId()))
+                .map(foundIndividual -> foundIndividual.toBuilder()
+                        .user(user)
+                        .build());
     }
 }

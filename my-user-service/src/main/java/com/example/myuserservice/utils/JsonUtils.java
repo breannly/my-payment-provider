@@ -1,9 +1,11 @@
 package com.example.myuserservice.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.flipkart.zjsonpatch.JsonDiff;
 
 import java.text.SimpleDateFormat;
 
@@ -35,6 +37,18 @@ public final class JsonUtils {
             return OBJECT_MAPPER.readValue(json, clazz);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static<T> String diff(T first, T second) {
+        return JsonDiff.asJson(readTree(first), readTree(second)).toString();
+    }
+
+    private static JsonNode readTree(Object object) {
+        try {
+            return OBJECT_MAPPER.readTree(writeValueAsString(object));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

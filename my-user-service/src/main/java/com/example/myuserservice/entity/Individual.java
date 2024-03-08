@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,4 +31,17 @@ public class Individual {
     private String passportNumber;
     private String gender;
     private LocalDate dateOfBirth;
+
+    @Override
+    public String toString() {
+        return "Individual{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", userId=" + userId +
+                ", passportNumber='" + passportNumber + '\'' +
+                ", gender='" + gender + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                '}';
+    }
 }

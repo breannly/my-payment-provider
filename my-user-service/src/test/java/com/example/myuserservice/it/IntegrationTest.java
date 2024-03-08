@@ -2,7 +2,7 @@ package com.example.myuserservice.it;
 
 import com.example.myuserservice.dto.IndividualNewDto;
 import com.example.myuserservice.entity.Individual;
-import com.example.myuserservice.entity.history.ProfileHistory;
+import com.example.myuserservice.entity.ProfileHistory;
 import com.example.myuserservice.entity.profile.Profile;
 import com.example.myuserservice.entity.user.User;
 import com.example.myuserservice.repository.IndividualRepository;

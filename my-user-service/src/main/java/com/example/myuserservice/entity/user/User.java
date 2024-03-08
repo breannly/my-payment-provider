@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@ToString
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,4 +32,20 @@ public class User {
     private String email;
     private String phoneNumber;
     private Boolean filled;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", profileId=" + profileId +
+                ", status=" + status +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", filled=" + filled +
+                '}';
+    }
 }

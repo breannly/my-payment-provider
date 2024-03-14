@@ -1,31 +1,44 @@
 package com.example.mygatewayuserservice.rest;
 
-import com.example.mygatewayuserservice.client.IndividualClient;
-import com.example.mypaymentprovider.api.auth.AccessTokenDto;
-import com.example.mypaymentprovider.api.individual.IndividualDetailsDto;
-import com.example.mypaymentprovider.api.individual.IndividualNewDto;
+import com.example.mygatewayuserservice.dto.UserLoginRequest;
+import com.example.mygatewayuserservice.dto.UserLoginResponse;
+import com.example.mygatewayuserservice.dto.UserRegistrationRequest;
+import com.example.mygatewayuserservice.dto.UserRegistrationResponse;
+import com.example.mygatewayuserservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("api/v1/auth")
 public class RestV1AuthController {
 
-    private final IndividualClient individualClient;
+    private final AuthService authService;
 
-    @PostMapping("api/v1/registration")
-    public Mono<ResponseEntity<AccessTokenDto>> registration(@RequestBody IndividualNewDto individualNewDto) {
-        return individualClient.register(individualNewDto)
-                .flatMap(response -> Mono.just(ResponseEntity.ok(response)));
+    @PostMapping("/registration")
+    public Mono<ResponseEntity<UserRegistrationResponse>> register(final @RequestBody UserRegistrationRequest request) {
+        log.info("Request: {}", request); // todo: add masking
+        return authService.register(request)
+                .map(response -> {
+                    log.info("Response: {}", response);
+                    return ResponseEntity.ok(response);
+                });
     }
 
-    @GetMapping("api/v1/individuals/{individualId}/details")
-    public Mono<ResponseEntity<IndividualDetailsDto>> findById(@PathVariable UUID individualId) {
-        return individualClient.findById(individualId)
-                .flatMap(response -> Mono.just(ResponseEntity.ok(response)));
+    @PostMapping("/login")
+    public Mono<ResponseEntity<UserLoginResponse>> login(final UserLoginRequest request) {
+        log.info("Request: {}", request); // todo: add masking
+        return authService.login(request)
+                .map(response -> {
+                    log.info("Response: {}", response);
+                    return ResponseEntity.ok(response);
+                });
     }
 }

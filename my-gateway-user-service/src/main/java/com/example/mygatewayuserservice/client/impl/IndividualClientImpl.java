@@ -2,7 +2,6 @@ package com.example.mygatewayuserservice.client.impl;
 
 import com.example.mygatewayuserservice.client.common.AbstractClient;
 import com.example.mygatewayuserservice.client.IndividualClient;
-import com.example.mypaymentprovider.api.auth.AccessTokenDto;
 import com.example.mypaymentprovider.api.individual.IndividualDetailsDto;
 import com.example.mypaymentprovider.api.individual.IndividualNewDto;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +28,9 @@ public class IndividualClientImpl extends AbstractClient implements IndividualCl
     }
 
     @Override
-    public Mono<AccessTokenDto> register(IndividualNewDto request) {
+    public Mono<IndividualDetailsDto> register(IndividualNewDto request) {
         log.info("Request: {}", request);
-        return execute(HttpMethod.POST, request, "", AccessTokenDto.class)
+        return execute(HttpMethod.POST, request, "", IndividualDetailsDto.class)
                 .doOnSuccess(response -> log.info("Response: {}", response));
     }
 

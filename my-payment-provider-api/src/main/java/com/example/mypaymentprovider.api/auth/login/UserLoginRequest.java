@@ -1,11 +1,10 @@
-package com.example.mypaymentprovider.api.individual;
+package com.example.mypaymentprovider.api.auth.login;
 
-public class IndividualNewDto {
+public class UserLoginRequest {
 
-   private String username;
-   private String email;
-   private String password;
-   private String confirmPassword;
+    private String username;
+    private String email;
+    private String password;
 
     public String getUsername() {
         return username;
@@ -31,21 +30,12 @@ public class IndividualNewDto {
         this.password = password;
     }
 
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
-
     @Override
     public String toString() {
-        return "IndividualNewDto{" +
+        return "UserLoginRequest{" +
                 "username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", confirmPassword='" + confirmPassword + '\'' +
                 '}';
     }
 }

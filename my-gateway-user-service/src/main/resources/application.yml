@@ -12,4 +12,16 @@ api:
   client:
     individual:
       url: http://localhost:8080/api/v1/individuals
-      timeoutInSeconds: 10
+      timeoutInSeconds: 2
+  keycloak:
+    auth-server-url: http://localhost:8282
+    admin:
+      realm: master
+      resource: admin-cli
+      username: admin
+      password: admin
+    realm: users-dev
+    resource: auth-service
+    credentials:
+      secret: GLdELwXdeZIizK6ckjE2M3ZEXCnWxKDK
+

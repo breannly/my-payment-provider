@@ -1,11 +1,11 @@
-package com.example.mypaymentprovider.api.individual;
+package com.example.mygatewayuserservice.dto;
 
-public class IndividualNewDto {
+public class UserRegistrationRequest {
 
-   private String username;
-   private String email;
-   private String password;
-   private String confirmPassword;
+    private String username;
+    private String email;
+    private String password;
+    private String confirmPassword;
 
     public String getUsername() {
         return username;
@@ -41,7 +41,7 @@ public class IndividualNewDto {
 
     @Override
     public String toString() {
-        return "IndividualNewDto{" +
+        return "UserRegistrationRequest{" +
                 "username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

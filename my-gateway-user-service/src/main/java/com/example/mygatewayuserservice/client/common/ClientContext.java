@@ -1,11 +1,10 @@
-package com.example.mygatewayuserservice.client;
+package com.example.mygatewayuserservice.client.common;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
 @Builder
-public class WebClientContext {
+public class ClientContext {
 
     private final String url;
     private final Long timeoutInSeconds;

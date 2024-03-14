@@ -1,9 +1,14 @@
-package com.example.mygatewayuserservice.client;
+package com.example.mygatewayuserservice.client.common;
 
+import com.example.mygatewayuserservice.utils.JacksonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -11,12 +16,23 @@ import java.time.Duration;
 
 public abstract class AbstractClient {
 
-    private final WebClient webClient;
-    private final WebClientContext context;
+    private static final ObjectMapper OBJECT_MAPPER = JacksonUtils.generateCustomObjectMapper();
 
-    protected AbstractClient(WebClient webClient, String url, Long timeOutInSecond) {
-        this.webClient = webClient;
-        this.context = WebClientContext.builder()
+    private final WebClient webClient;
+    private final ClientContext context;
+
+    protected AbstractClient(String url, Long timeOutInSecond) {
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(configurer -> {
+                    configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(OBJECT_MAPPER));
+                    configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(OBJECT_MAPPER ));
+                })
+                .build();
+        this.webClient = WebClient.builder()
+                .baseUrl(url)
+                .exchangeStrategies(exchangeStrategies)
+                .build();
+        this.context = ClientContext.builder()
                 .url(url)
                 .timeoutInSeconds(timeOutInSecond)
                 .build();
@@ -27,6 +43,13 @@ public abstract class AbstractClient {
                 .method(httpMethod)
                 .uri(path)
                 .bodyValue(request);
+        return sendAndReceive(requestSpec, responseClazz);
+    }
+
+    public <REQ, RES> Mono<RES> execute(HttpMethod httpMethod, String path, Class<RES> responseClazz) {
+        WebClient.RequestHeadersSpec<?> requestSpec = webClient
+                .method(httpMethod)
+                .uri(path);
         return sendAndReceive(requestSpec, responseClazz);
     }
 

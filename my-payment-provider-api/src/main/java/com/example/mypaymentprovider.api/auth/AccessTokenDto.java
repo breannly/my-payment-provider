@@ -1,15 +1,9 @@
 package com.example.mypaymentprovider.api.auth;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class IndividualAuthDto {
+public class AccessTokenDto {
 
     private String accessToken;
-    private Integer expiresIn;
+    private Long expiresIn;
     private String refreshToken;
     private String tokenType;
 
@@ -21,11 +15,11 @@ public class IndividualAuthDto {
         this.accessToken = accessToken;
     }
 
-    public Integer getExpiresIn() {
+    public Long getExpiresIn() {
         return expiresIn;
     }
 
-    public void setExpiresIn(Integer expiresIn) {
+    public void setExpiresIn(Long expiresIn) {
         this.expiresIn = expiresIn;
     }
 

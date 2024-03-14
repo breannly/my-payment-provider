@@ -1,4 +1,4 @@
-package com.example.mypaymentprovidercommon.individual;
+package com.example.mypaymentprovider.api.individual;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

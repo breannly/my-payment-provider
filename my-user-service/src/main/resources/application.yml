@@ -10,3 +10,16 @@ spring:
     locations: classpath:db/migration
     user: ${DB_USER}
     password: ${DB_PASSWORD}
+
+api:
+  keycloak:
+    auth-server-url: http://localhost:8282
+    admin:
+      realm: master
+      resource: admin-cli
+      username: admin
+      password: admin
+    realm: users
+    resource: my-gateway-user-service
+    credentials:
+      secret: jJm28F79oL8okiDkgaBJ5yqzQAxZtlaR

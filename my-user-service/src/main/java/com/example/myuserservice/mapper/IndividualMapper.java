@@ -1,7 +1,6 @@
 package com.example.myuserservice.mapper;
 
 import com.example.myuserservice.dto.IndividualDetailsDto;
-import com.example.myuserservice.dto.IndividualDto;
 import com.example.myuserservice.dto.IndividualNewDto;
 import com.example.myuserservice.entity.Individual;
 import org.mapstruct.Mapper;
@@ -16,10 +15,6 @@ public interface IndividualMapper {
     @Mapping(target = "updatedAt", source = "createdAt")
     @Mapping(target = "dateOfBirth", source = "dateOfBirth")
     Individual map(IndividualNewDto individualNewDto);
-
-    @Mapping(target = "uid", source = "user.profile.id")
-    @Mapping(target = "status", source = "user.status")
-    IndividualDto mapIndividualDto(Individual individual);
 
     @Mapping(target = "username", source = "user.profile.username")
     @Mapping(target = "isPasswordSet", source = "user.profile.isPasswordSet")

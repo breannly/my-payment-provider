@@ -13,6 +13,7 @@ java {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 }
 
 dependencies {
@@ -20,6 +21,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework:spring-jdbc'
+
+	implementation 'com.example:my-payment-provider-api:0.0.1-SNAPSHOT'
 
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.postgresql:postgresql'
@@ -29,6 +32,8 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor "org.mapstruct:mapstruct-processor:$mapstructVersion"
+
+	implementation 'org.keycloak:keycloak-admin-client:24.0.1'
 
 	implementation "io.github.cdimascio:dotenv-java:$dotenvVersion"
 	implementation "com.flipkart.zjsonpatch:zjsonpatch:$zjsonpatchVersion"
@@ -41,6 +46,7 @@ dependencies {
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation "org.mapstruct:mapstruct:$mapstructVersion"
 	testImplementation "org.jeasy:easy-random-core:$easyRandomVersion"
+
 }
 
 tasks.named('test') {

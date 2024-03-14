@@ -1,7 +1,7 @@
 package com.example.myuserservice.controller;
 
+import com.example.mypaymentprovider.api.auth.AccessTokenDto;
 import com.example.myuserservice.dto.IndividualDetailsDto;
-import com.example.myuserservice.dto.IndividualDto;
 import com.example.myuserservice.dto.IndividualNewDto;
 import com.example.myuserservice.service.IndividualService;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +23,15 @@ public class IndividualController {
     private final IndividualService individualService;
 
     @PostMapping
-    public Mono<ResponseEntity<IndividualDto>> save(@RequestBody @Validated IndividualNewDto individualNewDto) {
+    public Mono<ResponseEntity<AccessTokenDto>> save(@RequestBody @Validated IndividualNewDto individualNewDto) {
         log.info("Save Individual: {}", individualNewDto);
-        return individualService.register(individualNewDto)
-                .doOnSuccess(response -> log.info("Saved Individual: {}", response))
-                .doOnError(error -> log.error("Save Individual Error: {}", error.getMessage()))
-                .map(individualDto -> new ResponseEntity<>(individualDto, HttpStatus.CREATED));
+        return individualService.save(individualNewDto)
+                .doOnSuccess(response -> log.info("Access Token: {}", response))
+                .map(individualDto -> ResponseEntity.status(HttpStatus.CREATED).body(individualDto))
+                .onErrorResume(throwable -> {
+                    log.error("Save Individual Error: {}", throwable.getMessage());
+                    return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build());
+                });
     }
 
     @GetMapping("/individual/{individualId}/details")

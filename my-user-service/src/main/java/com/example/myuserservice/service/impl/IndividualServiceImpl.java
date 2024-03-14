@@ -1,7 +1,7 @@
 package com.example.myuserservice.service.impl;
 
+import com.example.mypaymentprovider.api.auth.AccessTokenDto;
 import com.example.myuserservice.dto.IndividualDetailsDto;
-import com.example.myuserservice.dto.IndividualDto;
 import com.example.myuserservice.dto.IndividualNewDto;
 import com.example.myuserservice.entity.Individual;
 import com.example.myuserservice.entity.user.User;
@@ -17,6 +17,7 @@ import com.example.myuserservice.repository.ProfileHistoryRepository;
 import com.example.myuserservice.repository.ProfileRepository;
 import com.example.myuserservice.repository.UserRepository;
 import com.example.myuserservice.service.IndividualService;
+import com.example.myuserservice.service.KeycloakService;
 import com.example.myuserservice.utils.JsonUtils;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
@@ -43,20 +44,37 @@ public class IndividualServiceImpl implements IndividualService {
     private final UserMapper userMapper;
     private final IndividualMapper individualMapper;
     private final TransactionalOperator transactionalOperator;
+    private final KeycloakService keycloakService;
 
     @Override
-    public Mono<IndividualDto> register(IndividualNewDto individualNewDto) {
-        return transactionalOperator.transactional(
-                createProfile(individualNewDto)
-                        .flatMap(savedProfile -> createUser(individualNewDto, savedProfile))
-                        .flatMap(this::createProfileHistory)
-                        .flatMap(savedUser -> createIndividual(individualNewDto, savedUser))
-                        .map(individualMapper::mapIndividualDto)
-        );
+    public Mono<AccessTokenDto> save(IndividualNewDto individualNewDto) {
+        return profileRepository.existsProfileByUsername(individualNewDto.getUsername())
+                .flatMap(exists -> {
+                    if (exists) {
+                        return Mono.error(new RuntimeException("Individual already exists"));
+                    } else {
+                        return transactionalOperator.transactional(
+                                createProfile(individualNewDto)
+                                        .flatMap(savedProfile -> createUser(individualNewDto, savedProfile))
+                                        .flatMap(this::createProfileHistory)
+                                        .flatMap(savedUser -> createIndividual(individualNewDto, savedUser))
+                                        .flatMap(savedIndividual -> keycloakService.save(savedIndividual.getUser()))
+                                        .map(accessTokenResponse -> {
+                                            AccessTokenDto accessTokenDto = new AccessTokenDto();
+                                            accessTokenDto.setAccessToken(accessTokenResponse.getToken());
+                                            accessTokenDto.setExpiresIn(accessTokenResponse.getExpiresIn());
+                                            accessTokenDto.setRefreshToken(accessTokenResponse.getRefreshToken());
+                                            accessTokenDto.setTokenType(accessTokenResponse.getTokenType());
+                                            return accessTokenDto;
+                                        })
+                        );
+                    }
+                });
     }
 
     private Mono<Profile> createProfile(IndividualNewDto individualNewDto) {
         Profile profile = profileMapper.map(individualNewDto).toBuilder()
+                .enabled(true)
                 .profileType(ProfileType.INDIVIDUAL)
                 .isPasswordSet(Objects.nonNull(individualNewDto.getPassword()))
                 .build();

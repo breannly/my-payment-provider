@@ -13,7 +13,7 @@ public class TestDataUtils {
 
     public static IndividualNewDto createIndividualNewDto() {
         IndividualNewDto individualNewDto = EASY_RANDOM.nextObject(IndividualNewDto.class);
-        individualNewDto.setEmail("test@test.com");
+        individualNewDto.setEmail(individualNewDto.getUsername() + "@test.com");
         individualNewDto.setCreatedAt(LocalDateTime.now());
         individualNewDto.setDateOfBirth(LocalDate.now());
         return individualNewDto;

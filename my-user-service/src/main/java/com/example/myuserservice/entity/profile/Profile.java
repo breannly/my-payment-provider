@@ -30,8 +30,8 @@ public class Profile {
     private ProfileType profileType;
     private String language;
     private Boolean emailVerified;
-    private Boolean preferMobile2Fa;
+//    private Boolean preferMobile2Fa;
     private Boolean isPasswordSet;
     private Boolean isSocial;
-    private Boolean is2FaEnabled;
+//    private Boolean is2FaEnabled;
 }

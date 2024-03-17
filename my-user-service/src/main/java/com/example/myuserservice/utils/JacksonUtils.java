@@ -1,4 +1,4 @@
-package com.example.mygatewayuserservice.utils;
+package com.example.myuserservice.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

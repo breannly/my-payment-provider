@@ -35,6 +35,7 @@ public class KeycloakProvider {
                 .realm(keycloakProperties.getRealm())
                 .clientId(keycloakProperties.getClientID())
                 .clientSecret(keycloakProperties.getClientSecret())
+                .grantType(OAuth2Constants.PASSWORD)
                 .username(username)
                 .password(password)
                 .build();

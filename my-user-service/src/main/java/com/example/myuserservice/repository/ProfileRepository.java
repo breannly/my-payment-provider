@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface ProfileRepository extends R2dbcRepository<Profile, UUID> {
 
-    Mono<Boolean> existsProfileByUsername(String username);
+    Mono<Profile> findProfileByUsername(String username);
 }

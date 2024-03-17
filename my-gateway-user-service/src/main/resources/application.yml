@@ -6,7 +6,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8282/realms/users
+          issuer-uri: http://localhost:8282/realms/users-dev
 
 api:
   client:
@@ -21,7 +21,7 @@ api:
       username: admin
       password: admin
     realm: users-dev
-    resource: auth-service
+    resource: gateway-user-service
     credentials:
-      secret: GLdELwXdeZIizK6ckjE2M3ZEXCnWxKDK
+      secret: ERqCqXcXiIjCLtZz2Aq8uRDZSPaWwtjS
 

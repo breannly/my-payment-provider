@@ -13,9 +13,12 @@ import com.example.mygatewayuserservice.service.AuthService;
 import com.example.mygatewayuserservice.service.KeycloakService;
 import com.example.mygatewayuserservice.service.UserService;
 import com.example.mygatewayuserservice.validator.UserRegistrationRequestValidator;
+import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -27,25 +30,37 @@ public class AuthServiceImpl implements AuthService {
     private final ResponseMapper responseMapper;
 
     @Override
-    public Mono<UserRegistrationResponse> register(UserRegistrationRequest request) {
-        return UserRegistrationRequestValidator.validate(request).toMono()
+    public Mono<UserRegistrationResponse> register(UserRegistrationRequest userRegistrationRequest) {
+        return UserRegistrationRequestValidator.validate(userRegistrationRequest).toMono()
                 .flatMap(result -> {
                     if (result.isError()) {
                         return Mono.error(new AuthServiceException(ErrorStatus.VALIDATION_ERROR, result.error()));
                     }
-                    return Mono.just(individualMapper.map(request));
+                    return Mono.just(userRegistrationRequest);
                 })
-                .flatMap(userService::save)
+                .flatMap(request -> {
+                    IndividualNewRequest individualNewRequest = individualMapper.map(request);
+                    individualNewRequest.setCreatedAt(LocalDateTime.now());
+                    return userService.save(individualNewRequest);
+                })
                 .flatMap(response -> keycloakService.save(KeycloakContext.builder()
-                        .username(request.getUsername())
-                        .username(request.getEmail())
-                        .username(request.getPassword())
+                        .userId(response.getId().toString())
+                        .username(userRegistrationRequest.getUsername())
+                        .email(userRegistrationRequest.getEmail())
+                        .password(userRegistrationRequest.getPassword())
+                        .firstName(userRegistrationRequest.getFirstName())
+                        .secondName(userRegistrationRequest.getSecondName())
                         .build()))
-                .map(responseMapper::map);
+                .map(responseMapper::mapUserRegistrationResponse);
     }
 
     @Override
     public Mono<UserLoginResponse> login(UserLoginRequest request) {
-        return null;
+        return keycloakService.refreshToken(KeycloakContext.builder()
+                        .username(request.getUsername())
+                        .email(request.getEmail())
+                        .password(request.getPassword())
+                        .build())
+                .map(responseMapper::mapUserLoginResponse);
     }
 }

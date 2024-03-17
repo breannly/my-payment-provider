@@ -1,6 +1,6 @@
 package com.example.myuserservice.mapper;
 
-import com.example.myuserservice.dto.IndividualNewDto;
+import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
 import com.example.myuserservice.entity.profile.Profile;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,6 +14,5 @@ public interface ProfileMapper {
     @Mapping(target = "updatedAt", source = "createdAt")
     @Mapping(target = "username", source = "username")
     @Mapping(target = "password", source = "password")
-    @Mapping(target = "secretKey", source = "secretKey")
-    Profile map(IndividualNewDto individualNewDto);
+    Profile map(IndividualNewRequest individualNewRequest);
 }

@@ -1,15 +1,15 @@
 package com.example.myuserservice.service;
 
-import com.example.mypaymentprovider.api.auth.AccessTokenDto;
-import com.example.myuserservice.dto.IndividualDetailsDto;
-import com.example.myuserservice.dto.IndividualNewDto;
+import com.example.mypaymentprovider.api.individual.IndividualDetailsResponse;
+import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
+import com.example.mypaymentprovider.api.individual.IndividualShortResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
 public interface IndividualService {
 
-    Mono<AccessTokenDto> save(IndividualNewDto individualNewDto);
+    Mono<IndividualShortResponse> save(IndividualNewRequest request);
 
-    Mono<IndividualDetailsDto> findById(UUID individualId);
+    Mono<IndividualDetailsResponse> findById(UUID id);
 }

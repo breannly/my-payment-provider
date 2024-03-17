@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -34,7 +36,7 @@ public class KeycloakServiceImpl implements KeycloakService {
             UserRepresentation userRepresentation = createUserRepresentation(context);
             createUserInKeycloak(userRepresentation);
             return retrieveUserTokens(context);
-        });
+        }).timeout(Duration.ofSeconds(2L));
     }
 
     @Override
@@ -43,9 +45,13 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     private UserRepresentation createUserRepresentation(KeycloakContext context) {
+        var attributes = Map.of("userId", List.of(context.getUserId()));
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setUsername(context.getUsername());
         userRepresentation.setEmail(context.getEmail());
+        userRepresentation.setAttributes(attributes);
+        userRepresentation.setFirstName(context.getFirstName());
+        userRepresentation.setLastName(context.getSecondName());
         userRepresentation.setCredentials(List.of(createCredentialRepresentation(context.getPassword())));
         userRepresentation.setEnabled(true);
 
@@ -73,7 +79,7 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     private AccessTokenResponse retrieveUserTokens(KeycloakContext context) {
-        String username = Optional.of(context.getUsername()).orElse(context.getEmail());
+        String username = Optional.ofNullable(context.getUsername()).orElse(context.getEmail());
         return keycloakProvider
                 .getInstanceWithCredentials(username, context.getPassword())
                 .tokenManager()

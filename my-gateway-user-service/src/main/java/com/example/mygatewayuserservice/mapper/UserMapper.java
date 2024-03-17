@@ -1,7 +1,7 @@
 package com.example.mygatewayuserservice.mapper;
 
 import com.example.mygatewayuserservice.dto.UserRegistrationRequest;
-import com.example.mypaymentprovider.api.individual.IndividualNewDto;
+import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -9,5 +9,5 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
-    IndividualNewDto map(UserRegistrationRequest source);
+    IndividualNewRequest map(UserRegistrationRequest source);
 }

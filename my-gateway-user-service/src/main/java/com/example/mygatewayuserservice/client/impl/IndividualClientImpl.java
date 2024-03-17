@@ -2,8 +2,9 @@ package com.example.mygatewayuserservice.client.impl;
 
 import com.example.mygatewayuserservice.client.common.AbstractClient;
 import com.example.mygatewayuserservice.client.IndividualClient;
-import com.example.mypaymentprovider.api.individual.IndividualDetailsDto;
-import com.example.mypaymentprovider.api.individual.IndividualNewDto;
+import com.example.mypaymentprovider.api.individual.IndividualDetailsResponse;
+import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
+import com.example.mypaymentprovider.api.individual.IndividualShortResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,16 +29,16 @@ public class IndividualClientImpl extends AbstractClient implements IndividualCl
     }
 
     @Override
-    public Mono<IndividualDetailsDto> register(IndividualNewDto request) {
+    public Mono<IndividualShortResponse> save(IndividualNewRequest request) {
         log.info("Request: {}", request);
-        return execute(HttpMethod.POST, request, "", IndividualDetailsDto.class)
+        return execute(HttpMethod.POST, request, "", IndividualShortResponse.class)
                 .doOnSuccess(response -> log.info("Response: {}", response));
     }
 
     @Override
-    public Mono<IndividualDetailsDto> findById(UUID individualId) {
-        log.info("Request: id = {}", individualId);
-        return execute(HttpMethod.GET, "/individual/" + individualId + "/details", IndividualDetailsDto.class)
-                .doOnSuccess(response -> log.info("Response: {}", response));
+    public Mono<IndividualDetailsResponse> findById(UUID id) {
+        log.info("User Service - Find individual by id: {}", id);
+        return execute(HttpMethod.GET, "/individual/" + id.toString() + "/details", IndividualDetailsResponse.class)
+                .doOnSuccess(response -> log().info("Response: {}", response));
     }
 }

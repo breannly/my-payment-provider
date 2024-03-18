@@ -1,15 +1,15 @@
 package com.example.mygatewayuserservice.client;
 
-import com.example.mypaymentprovider.api.individual.IndividualDetailsResponse;
-import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
-import com.example.mypaymentprovider.api.individual.IndividualShortResponse;
+import com.example.mypaymentprovider.api.individual.request.IndividualCreateRequest;
+import com.example.mypaymentprovider.api.individual.response.IndividualCreateResponse;
+import com.example.mypaymentprovider.api.individual.response.IndividualGetByIdResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
 public interface IndividualClient {
 
-    Mono<IndividualShortResponse> save(IndividualNewRequest request);
+    Mono<IndividualCreateResponse> save(IndividualCreateRequest request);
 
-    Mono<IndividualDetailsResponse> findById(UUID id);
+    Mono<IndividualGetByIdResponse> findById(UUID id);
 }

@@ -2,7 +2,6 @@ package com.example.mygatewayuserservice.rest;
 
 import com.example.mygatewayuserservice.dto.UserGetMeResponse;
 import com.example.mygatewayuserservice.service.UserService;
-import com.example.mypaymentprovider.api.individual.IndividualDetailsResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

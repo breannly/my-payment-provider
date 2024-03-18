@@ -13,8 +13,8 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 public class KeycloakContext {
 
-    private String username;
     private String userId;
+    private String username;
     private String email;
     private String password;
     private String firstName;

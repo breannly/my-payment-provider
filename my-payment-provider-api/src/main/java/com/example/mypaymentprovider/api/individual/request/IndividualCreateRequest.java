@@ -1,8 +1,8 @@
-package com.example.mypaymentprovider.api.individual;
+package com.example.mypaymentprovider.api.individual.request;
 
 import java.time.LocalDateTime;
 
-public class IndividualNewRequest {
+public class IndividualCreateRequest {
 
     private String username;
     private String email;
@@ -35,14 +35,6 @@ public class IndividualNewRequest {
         this.password = password;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public String getFirstName() {
         return firstName;
     }
@@ -59,9 +51,17 @@ public class IndividualNewRequest {
         this.secondName = secondName;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     @Override
     public String toString() {
-        return "IndividualNewRequest{" +
+        return "IndividualCreateRequest{" +
                 "username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

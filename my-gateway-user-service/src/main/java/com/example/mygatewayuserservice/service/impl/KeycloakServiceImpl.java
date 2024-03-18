@@ -1,6 +1,5 @@
 package com.example.mygatewayuserservice.service.impl;
 
-import com.example.mygatewayuserservice.exception.ErrorStatus;
 import com.example.mygatewayuserservice.exception.KeycloakServiceException;
 import com.example.mygatewayuserservice.provider.KeycloakContext;
 import com.example.mygatewayuserservice.provider.KeycloakProvider;
@@ -12,6 +11,7 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -62,7 +62,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         try (Response response = keycloakProvider.getAdminInstance().realm(realm).users().create(userRepresentation)) {
             if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
                 log.error("User creation failed with status: {}", response.getStatus());
-                throw new KeycloakServiceException(ErrorStatus.KEYCLOAK_FAILED, "Failed to save user in Keycloak");
+                throw new KeycloakServiceException(HttpStatus.CONFLICT, "Failed to save user in Keycloak");
             }
             log.info("User created successfully in Keycloak.");
         }

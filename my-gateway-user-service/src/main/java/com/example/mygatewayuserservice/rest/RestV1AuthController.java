@@ -25,7 +25,7 @@ public class RestV1AuthController {
 
     @PostMapping("/registration")
     public Mono<ResponseEntity<UserRegistrationResponse>> register(@RequestBody @Validated UserRegistrationRequest request) {
-        log.info("Request: {}", request); // todo: add masking
+        log.info("Request: {}", request);
         return authService.register(request)
                 .map(response -> {
                     log.info("Response: {}", response);

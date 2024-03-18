@@ -1,13 +1,13 @@
 package com.example.myuserservice.validator;
 
-import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
+import com.example.mypaymentprovider.api.individual.request.IndividualCreateRequest;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class IndividualNewRequestValidator {
 
-    public static ValidationResult validate(IndividualNewRequest request) {
+    public static ValidationResult validate(IndividualCreateRequest request) {
         List<String> missingFields = new ArrayList<>();
         if (request.getUsername() == null) {
             missingFields.add("username");

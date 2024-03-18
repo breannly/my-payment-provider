@@ -1,10 +1,11 @@
-package com.example.mypaymentprovider.api.individual;
+package com.example.mypaymentprovider.api.individual.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-public class IndividualDetailsResponse {
+public class Individual {
 
-    private String uid;
+    private UUID uid;
     private String username;
     private Contact contact;
     private Name name;
@@ -18,11 +19,11 @@ public class IndividualDetailsResponse {
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
 
-    public String getUid() {
+    public UUID getUid() {
         return uid;
     }
 
-    public void setUid(String uid) {
+    public void setUid(UUID uid) {
         this.uid = uid;
     }
 

@@ -1,11 +1,12 @@
 package com.example.myuserservice.mapper;
 
-import com.example.mypaymentprovider.api.individual.IndividualDetailsResponse;
-import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
-import com.example.mypaymentprovider.api.individual.IndividualShortResponse;
+import com.example.mypaymentprovider.api.individual.request.IndividualCreateRequest;
 import com.example.myuserservice.entity.Individual;
 import com.example.myuserservice.entity.user.User;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring",
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
@@ -14,11 +15,7 @@ public interface IndividualMapper {
 
     @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "updatedAt", source = "createdAt")
-    Individual map(IndividualNewRequest individualNewRequest);
-
-    @Mapping(target = "id", source = "user.profile.id")
-    @Mapping(target = "status", source = "user.status")
-    IndividualShortResponse map(Individual individual);
+    Individual map(IndividualCreateRequest individualNewRequest);
 
     @Mapping(target = "uid", source = "user.profile.id")
     @Mapping(target = "username", source = "user.profile.username")
@@ -39,13 +36,13 @@ public interface IndividualMapper {
     @Mapping(target = "security.isSocial", source = "user.profile.isSocial")
     @Mapping(target = "createdAt", source = "user.profile.createdAt")
     @Mapping(target = "updatedAt", source = "user.profile.updatedAt")
-    IndividualDetailsResponse mapToIndividualDetailsResponse(Individual individual);
+    com.example.mypaymentprovider.api.individual.model.Individual mapToIndividual(Individual individual);
 
-    default IndividualDetailsResponse.Name mapName(User user) {
+    default com.example.mypaymentprovider.api.individual.model.Individual.Name mapName(User user) {
         if (user == null) {
             return null;
         }
-        IndividualDetailsResponse.Name name = new IndividualDetailsResponse.Name();
+        var name = new com.example.mypaymentprovider.api.individual.model.Individual.Name();
         name.setFirstName(user.getFirstName());
         name.setSecondName(user.getLastName());
         name.setFullName(user.getFirstName() + " " + user.getLastName());

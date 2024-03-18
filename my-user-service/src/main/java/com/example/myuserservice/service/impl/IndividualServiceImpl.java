@@ -1,14 +1,16 @@
 package com.example.myuserservice.service.impl;
 
-import com.example.mypaymentprovider.api.individual.IndividualDetailsResponse;
-import com.example.mypaymentprovider.api.individual.IndividualNewRequest;
-import com.example.mypaymentprovider.api.individual.IndividualShortResponse;
+import com.example.mypaymentprovider.api.individual.model.Status;
+import com.example.mypaymentprovider.api.individual.request.IndividualCreateRequest;
+import com.example.mypaymentprovider.api.individual.response.IndividualCreateResponse;
+import com.example.mypaymentprovider.api.individual.response.IndividualGetByIdResponse;
 import com.example.myuserservice.entity.Individual;
 import com.example.myuserservice.entity.ProfileHistory;
 import com.example.myuserservice.entity.profile.Profile;
 import com.example.myuserservice.entity.profile.ProfileType;
 import com.example.myuserservice.entity.user.User;
 import com.example.myuserservice.entity.user.UserStatus;
+import com.example.myuserservice.exception.IndividualServiceException;
 import com.example.myuserservice.mapper.IndividualMapper;
 import com.example.myuserservice.mapper.ProfileMapper;
 import com.example.myuserservice.mapper.UserMapper;
@@ -22,6 +24,7 @@ import com.example.myuserservice.validator.IndividualNewRequestValidator;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
@@ -46,31 +49,31 @@ public class IndividualServiceImpl implements IndividualService {
     private final TransactionalOperator transactionalOperator;
 
     @Override
-    public Mono<IndividualShortResponse> save(IndividualNewRequest individualNewRequest) {
-        return IndividualNewRequestValidator.validate(individualNewRequest).toMono()
+    public Mono<IndividualCreateResponse> create(IndividualCreateRequest individualCreateRequest) {
+        return IndividualNewRequestValidator.validate(individualCreateRequest).toMono()
                 .flatMap(result -> {
                     if (result.isError()) {
-                        return Mono.error(new RuntimeException());
+                        return Mono.error(new IndividualServiceException(Status.ERROR, HttpStatus.BAD_REQUEST, result.error()));
                     }
-                    return Mono.just(individualNewRequest);
+                    return Mono.just(individualCreateRequest);
                 })
                 .flatMap(request -> profileRepository.findProfileByUsername(request.getUsername())
-                        .flatMap(result -> Mono.error(new RuntimeException()))
+                        .flatMap(result -> Mono.error(new IndividualServiceException(Status.SUCCESS, HttpStatus.CONFLICT, "Username already is use")))
                         .switchIfEmpty(userRepository.findUserByEmail(request.getEmail())
-                                .flatMap(result -> Mono.error(new RuntimeException()))
-                                .switchIfEmpty(Mono.just(request))
-                        )
-                )
+                                .flatMap(result -> Mono.error(new IndividualServiceException(Status.ERROR, HttpStatus.CONFLICT, "Email already in use"))
+                                        .switchIfEmpty(Mono.just(request))
+                                )
+                        ))
                 .flatMap(request -> transactionalOperator.transactional(
-                        createProfile((IndividualNewRequest) request)
-                                .flatMap(profile -> createUser((IndividualNewRequest) request, profile))
+                        createProfile((IndividualCreateRequest) request)
+                                .flatMap(profile -> createUser((IndividualCreateRequest) request, profile))
                                 .flatMap(user -> createProfileHistory(user).thenReturn(user))
-                                .flatMap(user -> createIndividual((IndividualNewRequest) request, user))
+                                .flatMap(user -> createIndividual((IndividualCreateRequest) request, user))
                 ))
-                .map(individualMapper::map);
+                .map(individual -> IndividualCreateResponse.success(individualMapper.mapToIndividual(individual)));
     }
 
-    private Mono<Profile> createProfile(IndividualNewRequest request) {
+    private Mono<Profile> createProfile(IndividualCreateRequest request) {
         Profile profile = profileMapper.map(request).toBuilder()
                 .enabled(true)
                 .profileType(ProfileType.INDIVIDUAL)
@@ -83,7 +86,7 @@ public class IndividualServiceImpl implements IndividualService {
                 .doOnError(throwable -> log.error("Failed to create profile for individual: {}", throwable.getMessage()));
     }
 
-    private Mono<User> createUser(IndividualNewRequest request, Profile profile) {
+    private Mono<User> createUser(IndividualCreateRequest request, Profile profile) {
         User user = userMapper.map(request).toBuilder()
                 .profileId(profile.getId())
                 .profile(profile)
@@ -97,7 +100,7 @@ public class IndividualServiceImpl implements IndividualService {
                 .doOnError(throwable -> log.error("Failed to create user for individual: {}", throwable.getMessage()));
     }
 
-    private Mono<Individual> createIndividual(IndividualNewRequest request, User user) {
+    private Mono<Individual> createIndividual(IndividualCreateRequest request, User user) {
         Individual individual = individualMapper.map(request).toBuilder()
                 .userId(user.getId())
                 .user(user)
@@ -125,13 +128,13 @@ public class IndividualServiceImpl implements IndividualService {
     }
 
     @Override
-    public Mono<IndividualDetailsResponse> findById(UUID id) {
+    public Mono<IndividualGetByIdResponse> findById(UUID id) {
         return profileRepository.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("")))
+                .switchIfEmpty(Mono.error(new IndividualServiceException(Status.SUCCESS, HttpStatus.CONFLICT, "Individual not found")))
                 .flatMap(profile -> userRepository.findByProfileId(profile.getId())
                         .map(user -> user.toBuilder().profile(profile).build()))
                 .flatMap(user -> individualRepository.findByUserId(user.getId())
                         .map(individual -> individual.toBuilder().user(user).build()))
-                .map(individualMapper::mapToIndividualDetailsResponse);
+                .map(individual -> IndividualGetByIdResponse.success(individualMapper.mapToIndividual(individual)));
     }
 }

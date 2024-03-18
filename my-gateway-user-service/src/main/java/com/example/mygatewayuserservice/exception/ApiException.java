@@ -9,9 +9,9 @@ public class ApiException extends RuntimeException {
     private final HttpStatus status;
     private final String message;
 
-    public ApiException(ErrorStatus status, String message) {
+    public ApiException(HttpStatus status, String message) {
         super();
-        this.status = status.getHttpStatus();
+        this.status = status;
         this.message = message;
     }
 }

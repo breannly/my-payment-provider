@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
@@ -19,18 +18,18 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-public class AppErrorWebExceptionHandler extends AbstractErrorWebExceptionHandler {
+public class ErrorWebExceptionHandler extends AbstractErrorWebExceptionHandler {
 
-    public AppErrorWebExceptionHandler(AppErrorAttributes errorAttributes,
-                                       ApplicationContext applicationContext,
-                                       ServerCodecConfigurer serverCodecConfigurer) {
+    public ErrorWebExceptionHandler(ErrorAttributes errorAttributes,
+                                    ApplicationContext applicationContext,
+                                    ServerCodecConfigurer serverCodecConfigurer) {
         super(errorAttributes, new WebProperties.Resources(), applicationContext);
         setMessageWriters(serverCodecConfigurer.getWriters());
         setMessageReaders(serverCodecConfigurer.getReaders());
     }
 
     @Override
-    protected RouterFunction<ServerResponse> getRoutingFunction(ErrorAttributes errorAttributes) {
+    protected RouterFunction<ServerResponse> getRoutingFunction(org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes) {
         return RouterFunctions.route(RequestPredicates.all(), this::renderErrorResponse);
     }
 

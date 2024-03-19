@@ -5,8 +5,14 @@ services:
     image: quay.io/keycloak/keycloak:24.0.1
     command:
       - start-dev
+      - --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - type: bind
+        source: ./src/main/resources/keycloak/import/realm-export.json
+        target: /opt/keycloak/data/import/realm-export.json
+        read_only: true
     ports:
       - "8282:8080"

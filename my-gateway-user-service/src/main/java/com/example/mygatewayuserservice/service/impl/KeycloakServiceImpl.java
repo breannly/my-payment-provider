@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +35,7 @@ public class KeycloakServiceImpl implements KeycloakService {
             UserRepresentation userRepresentation = createUserRepresentation(context);
             createUserInKeycloak(userRepresentation);
             return retrieveUserTokens(context);
-        }).timeout(Duration.ofSeconds(2L));
+        });
     }
 
     @Override

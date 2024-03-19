@@ -10,7 +10,7 @@ import com.example.mygatewayuserservice.mapper.AuthMapper;
 import com.example.mygatewayuserservice.provider.KeycloakContext;
 import com.example.mygatewayuserservice.service.AuthService;
 import com.example.mygatewayuserservice.service.KeycloakService;
-import com.example.mygatewayuserservice.service.UserService;
+import com.example.mygatewayuserservice.service.IndividualService;
 import com.example.mygatewayuserservice.validator.UserRegistrationRequestValidator;
 import com.example.mypaymentprovider.api.individual.request.IndividualCreateRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserService userService;
+    private final IndividualService individualService;
     private final KeycloakService keycloakService;
     private final IndividualMapper individualMapper;
     private final AuthMapper authMapper;
@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
                 .flatMap(request -> {
                     IndividualCreateRequest individualCreateRequest = individualMapper.map(request);
                     individualCreateRequest.setCreatedAt(LocalDateTime.now());
-                    return userService.save(individualCreateRequest);
+                    return individualService.save(individualCreateRequest);
                 })
                 .flatMap(individual -> keycloakService.save(KeycloakContext.builder()
                         .userId(individual.getUid().toString())

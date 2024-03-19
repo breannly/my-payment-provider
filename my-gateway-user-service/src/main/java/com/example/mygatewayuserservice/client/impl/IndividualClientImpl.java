@@ -30,14 +30,14 @@ public class IndividualClientImpl extends AbstractClient implements IndividualCl
 
     @Override
     public Mono<IndividualCreateResponse> save(IndividualCreateRequest request) {
-        log.info("Request: {}", request);
+        log.info("Individual Client - Request: {}", request);
         return execute(HttpMethod.POST, request, "", IndividualCreateResponse.class)
                 .doOnSuccess(response -> log.info("Response: {}", response));
     }
 
     @Override
     public Mono<IndividualGetByIdResponse> findById(UUID id) {
-        log.info("User Service - Find individual by id: {}", id);
+        log.info("Individual Client - Find individual by id: {}", id);
         return execute(HttpMethod.GET, "/individual/" + id.toString() + "/details", IndividualGetByIdResponse.class)
                 .doOnSuccess(response -> log().info("Response: {}", response));
     }

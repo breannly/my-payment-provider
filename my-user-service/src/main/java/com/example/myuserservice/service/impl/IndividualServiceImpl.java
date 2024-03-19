@@ -58,12 +58,12 @@ public class IndividualServiceImpl implements IndividualService {
                     return Mono.just(individualCreateRequest);
                 })
                 .flatMap(request -> profileRepository.findProfileByUsername(request.getUsername())
-                        .flatMap(result -> Mono.error(new IndividualServiceException(Status.SUCCESS, HttpStatus.CONFLICT, "Username already is use")))
+                        .flatMap(profileResult -> Mono.error(new IndividualServiceException(Status.SUCCESS, HttpStatus.CONFLICT, "Username already in use")))
                         .switchIfEmpty(userRepository.findUserByEmail(request.getEmail())
-                                .flatMap(result -> Mono.error(new IndividualServiceException(Status.ERROR, HttpStatus.CONFLICT, "Email already in use"))
-                                        .switchIfEmpty(Mono.just(request))
-                                )
-                        ))
+                                .flatMap(emailResult -> Mono.error(new IndividualServiceException(Status.ERROR, HttpStatus.CONFLICT, "Email already in use")))
+                                .switchIfEmpty(Mono.just(request))
+                        )
+                )
                 .flatMap(request -> transactionalOperator.transactional(
                         createProfile((IndividualCreateRequest) request)
                                 .flatMap(profile -> createUser((IndividualCreateRequest) request, profile))
@@ -74,6 +74,7 @@ public class IndividualServiceImpl implements IndividualService {
     }
 
     private Mono<Profile> createProfile(IndividualCreateRequest request) {
+        log.info("1");
         Profile profile = profileMapper.map(request).toBuilder()
                 .enabled(true)
                 .profileType(ProfileType.INDIVIDUAL)

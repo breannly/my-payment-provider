@@ -41,6 +41,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'com.github.dasniko:testcontainers-keycloak:3.3.0'
+	implementation 'org.testcontainers:testcontainers:1.19.7'
+	testImplementation "org.jeasy:easy-random-core:$easyRandomVersion"
 }
 
 tasks.named('test') {

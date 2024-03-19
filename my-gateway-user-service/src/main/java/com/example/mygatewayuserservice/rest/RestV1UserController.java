@@ -17,8 +17,8 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/individuals")
-public class RestV1IndividualController {
+@RequestMapping("api/v1/users")
+public class RestV1UserController {
 
     private final UserService userService;
 

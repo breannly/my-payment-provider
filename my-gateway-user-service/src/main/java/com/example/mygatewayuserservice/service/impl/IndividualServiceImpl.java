@@ -4,7 +4,7 @@ import com.example.mygatewayuserservice.client.IndividualClient;
 import com.example.mygatewayuserservice.dto.UserGetMeResponse;
 import com.example.mygatewayuserservice.exception.IndividualServiceException;
 import com.example.mygatewayuserservice.mapper.IndividualMapper;
-import com.example.mygatewayuserservice.service.UserService;
+import com.example.mygatewayuserservice.service.IndividualService;
 import com.example.mypaymentprovider.api.individual.model.Individual;
 import com.example.mypaymentprovider.api.individual.model.Status;
 import com.example.mypaymentprovider.api.individual.request.IndividualCreateRequest;
@@ -17,10 +17,9 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class IndividualServiceImpl implements UserService {
+public class IndividualServiceImpl implements IndividualService {
 
     private final IndividualClient individualClient;
-    private final IndividualMapper individualMapper;
 
     @Override
     public Mono<Individual> save(IndividualCreateRequest request) {
@@ -34,14 +33,13 @@ public class IndividualServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<UserGetMeResponse> findById(UUID id) {
+    public Mono<Individual> findById(UUID id) {
         return individualClient.findById(id)
                 .flatMap(response -> {
                     if (response.getStatus() != Status.SUCCESS || response.getDescription() != null) {
                         return Mono.error(new IndividualServiceException(HttpStatus.CONFLICT, response.getDescription()));
                     }
                     return Mono.just(response.getIndividual());
-                })
-                .map(individualMapper::map);
+                });
     }
 }

@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-public class AppErrorAttributes extends DefaultErrorAttributes {
+public class ErrorAttributes extends DefaultErrorAttributes {
 
-    public AppErrorAttributes() {
+    public ErrorAttributes() {
         super();
     }
 

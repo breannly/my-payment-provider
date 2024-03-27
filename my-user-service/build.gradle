@@ -14,6 +14,9 @@ java {
 repositories {
 	mavenCentral()
 	mavenLocal()
+	maven {
+		url 'https://localhost:8081/repository/maven-public/'
+	}
 }
 
 dependencies {
@@ -22,7 +25,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework:spring-jdbc'
 
-	implementation 'com.example:my-payment-provider-api:0.0.1-SNAPSHOT'
+	implementation 'com.example:my-payment-provider-api:0.0.1'
 
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.postgresql:postgresql'

@@ -20,6 +20,9 @@ configurations {
 repositories {
 	mavenCentral()
 	mavenLocal()
+	maven {
+		url 'https://localhost:8081/repository/maven-public/'
+	}
 }
 
 dependencies {
@@ -28,7 +31,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0'
 
-	implementation 'com.example:my-payment-provider-api:0.0.1-SNAPSHOT'
+	implementation 'com.example:my-payment-provider-api:0.0.1'
 
 	implementation 'org.keycloak:keycloak-admin-client:24.0.1'
 
